@@ -1,0 +1,11 @@
+#version 420
+precision highp float;
+out vec4 FragColor;
+in float cz;
+in float qc;
+
+void main(void) 
+{
+    FragColor = vec4(cz*1.0,cz*qc,0,1.0);
+}
+

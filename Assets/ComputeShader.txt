@@ -1,0 +1,60 @@
+#version 420
+#extension GL_ARB_compute_shader : enable
+#extension GL_ARB_shader_storage_buffer_object : enable
+layout (local_size_x = 8,local_size_y = 1) in;
+
+struct ObjectData
+{
+	vec4 s;//Location
+	vec4 v;//Speed
+	float q;//Charge
+	float m;//Mass
+	float r;//radius
+	float rf;//Repulsion force
+};
+
+layout(std430,binding = 2) buffer Pb
+{
+	ObjectData Dta[];
+};
+
+uniform float dt;//delta t
+uniform float sr;//system sphere radius
+
+
+void main()
+{
+	barrier();
+	vec3 fv = vec3(0,0,0);//force vector
+	uint indx = gl_GlobalInvocationID.x;
+	uint Pn = gl_NumWorkGroups.x;
+	for(uint i = 0;i < Pn;i++)
+	{
+		if(i != indx)
+		{
+			vec3 Distv = Dta[indx].s.xyz - Dta[i].s.xyz;
+			float Dist = length(Distv);
+			float DistPow2 = pow(Dist,2);
+			float DistPow6 = pow(DistPow2,4);
+
+			float Force = ((Dta[indx].q*Dta[i].q)/DistPow2) + (4/DistPow6);
+			fv += (Distv/Dist)*Force;
+		}
+	}
+	float pm = Dta[indx].m;//particle mass	
+	vec3 av = fv/pm;//acceleration vector
+	vec3 vv = av*dt;//velocity vector
+	Dta[indx].v += vec4(vv,0);//add to particle speed
+
+	barrier();//wait till every kernel reaches this point
+	vec4 oldPos = Dta[indx].s;
+	Dta[indx].s += Dta[indx].v*dt;
+
+	if(length(vec3(Dta[indx].s)) > sr)
+	{
+		Dta[indx].s = oldPos;
+		Dta[indx].v *= -1;
+	}
+
+
+}
