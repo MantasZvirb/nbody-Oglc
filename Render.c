@@ -77,7 +77,8 @@ void RunSimulationFrame(float dt)
 	glUseProgram(LinkedComputeId);
 	glUniform1fv(UniformIdDt,1,&dta);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,ComBuff);
-	glDispatchCompute(ParticleNum,1,1);
+	//32 work groups in the shader
+	glDispatchCompute(ParticleNum/32,1,1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
@@ -100,7 +101,8 @@ void RunSimulationStep(float dt,float Time)
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,ComBuff);
 	for(float i = 0;i < Time;i+=dt)
 	{
-		glDispatchCompute(ParticleNum,1,1);
+		//32 works groups
+		glDispatchCompute(ParticleNum/32,1,1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }

@@ -55,21 +55,22 @@ int main(int argc,char *argv[])
 	Pp.q = 1;
 	Pp.m = 1;
 	Pp.s.z = -10;
-	unsigned long Pn = 100;
+	unsigned long Pn = 1028;
 	Particle *Pb = CreateParticleBuffer(Pn);
 	Pb[0] = Pp;
 
-	SetSystemVolume(1000);
+	SetSystemVolume(100);
+	float sradius = 50;
 	for(unsigned long i = 1;i < Pn;i++)
 	{
-		Pp.s.x = frand(-10,10);
-		Pp.s.y = frand(-10,10);
-		Pp.s.z = frand(-10,10);
-		Pp.q = frand(-5,1);
+		Pp.s.x = frand(-sradius,sradius);
+		Pp.s.y = frand(-sradius,sradius);
+		Pp.s.z = frand(-sradius,sradius);
+		Pp.q = frand(-1,1);
 		if(Pp.q < 0)
 		{
-			Pp.m = 0.0001;
-			Pp.r = 0.2;
+			Pp.m = 1;
+			Pp.r = 0.4;
 			Pp.q = -1;
 		}
 		else
@@ -89,7 +90,7 @@ int main(int argc,char *argv[])
 	while(Quit != 1)
 	{
 		FrameRender(Window);
-		RunSimulationStep(0.0001,0.01);
+		RunSimulationStep(0.001,0.01);
 		
 		while(SDL_PollEvent(&Evnt) != 0)
 		{
@@ -102,11 +103,11 @@ int main(int argc,char *argv[])
 			{
 				if(Evnt.key.keysym.sym == SDLK_UP)
 				{
-					TranslateCamera(0,0,-0.5);
+					TranslateCamera(0,0.5,0);
 				}
 				if(Evnt.key.keysym.sym == SDLK_DOWN)
 				{
-					TranslateCamera(0,0,0.5);
+					TranslateCamera(0,-0.5,0);
 				}
 				if(Evnt.key.keysym.sym == SDLK_RIGHT)
 				{
@@ -118,11 +119,11 @@ int main(int argc,char *argv[])
 				}
 				if(Evnt.key.keysym.sym == SDLK_z)
 				{
-					TranslateCamera(0,-0.5,0);
+					TranslateCamera(0,0,-0.5);
 				}
 				if(Evnt.key.keysym.sym == SDLK_x)
 				{
-					TranslateCamera(0,0.5,0);
+					TranslateCamera(0,0,0.5);
 				}
 			}
 		}
